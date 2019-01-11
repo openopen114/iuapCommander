@@ -1,16 +1,22 @@
 ### Commands
 
-` g <type> <name> ` generate module item (m)/component(c)
+` g <type> <name> `   generate page (g) / component(c)
 
 
 
-#### generate  module item  
+#### generate  page
 
-`iuap g m foo-bar`
+`iuap g p MY-PAGE-NAME`
 
 
 
 #### generate component 
 
+`cd MY-PAGE-NAME`
+
 `iuap g c my-table`
+
+
+
+
 

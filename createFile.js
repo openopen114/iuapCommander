@@ -1,18 +1,25 @@
 const program = require('commander');
 const fs=require('fs');
-const beautify = require('js-beautify').js_beautify;
+const beautify = require('js-beautify-ejsx').js_beautify;
+const html_beautify = require('js-beautify-ejsx').html_beautify;
 const _ = require('lodash');
+const colors = require('colors');
+const logSymbols = require('log-symbols');
 
-module.exports.moduleItem = (_moduleItemName) => {
+module.exports.genPage = (_pageName) => {
  
-	const moduleItemName = _moduleItemName;
-	const className = _.upperFirst(_.camelCase(moduleItemName));
-	const modelName = `${className}Model`;
-	const jsFileName = `${moduleItemName}.jsx`;
-	const lessFileName = `${moduleItemName}.less`;
+	const pageName = _pageName;
+	const className = _.upperFirst(_.camelCase(pageName));
+	const ComponentName = _.upperFirst(_.camelCase(pageName));
+	const modelName = _.camelCase(pageName);
+	const appFileName = `app.jsx`;
+	const jsFileName = `index.jsx`;
+	const lessFileName = `index.less`;
+	const indexHtmmFileName = `index.html`;
 
-	const dir = `./${moduleItemName}`;
+	const dir = `./${pageName}`;
 	const compDir = `${dir}/components`;
+	const routesDir = `${dir}/routes`;
 
 
 
@@ -29,10 +36,19 @@ module.exports.moduleItem = (_moduleItemName) => {
 
 
 
+	// mkdir module routes folder
+	if (!fs.existsSync(routesDir)){
+	    fs.mkdirSync(routesDir);
+	}
 
 
 
-	// create container.js
+
+
+
+	/**************************************/
+	/******** create container.js *********/
+	/**************************************/
 	const containerJSContent = `import React from 'react';
 								import mirror, { connect } from 'mirrorx'; 
 								import ${className} from './components/${className}';
@@ -45,15 +61,18 @@ module.exports.moduleItem = (_moduleItemName) => {
 
 	 
 
-	fs.writeFile(`${dir}/container.js`, beautify(containerJSContent, {brace_style: 'collapse-preserve-inline'}), err => {
+	fs.writeFile(`${dir}/container.js`, beautify(containerJSContent, {brace_style: 'collapse-preserve-inline', e4x:'ture'}), err => {
 		if(err) throw err;
-		console.log(`${dir}/container.js create success `);
+		console.log(logSymbols.success, `${dir}/container.js create success `.green);
 	})
 
 
 
 
-	// create model.js
+	/**********************************/
+	/******** create model.js *********/
+	/**********************************/
+ 
 	const modelJSContent = `
 
 							import { actions } from "mirrorx";
@@ -80,13 +99,14 @@ module.exports.moduleItem = (_moduleItemName) => {
 
 	fs.writeFile(`${dir}/model.js`, beautify(modelJSContent, {brace_style: 'collapse-preserve-inline'}), err => {
 		if(err) throw err;
-		console.log(`${dir}/model.js create success `);
+		console.log(logSymbols.success, `${dir}/model.js create success `.green);
 	})
 
 
-
-
-	//service.js
+ 
+	/************************************/
+	/******** create service.js *********/
+	/************************************/
 	const serviceJSContent = `
 								import axios from 'axios';
 								import request from "utils/request";
@@ -112,56 +132,157 @@ module.exports.moduleItem = (_moduleItemName) => {
 
 	fs.writeFile(`${dir}/service.js`, beautify(serviceJSContent, {brace_style: 'collapse-preserve-inline'}), err => {
 		if(err) throw err;
-		console.log(`${dir}/service.js create success `);
+		console.log(logSymbols.success, `${dir}/service.js create success `.green);
 	})
 
 
 
 
-	// create jsx file
-	let jsxContent = ` 
-					import React, { PureComponent } from "react";
-					import ReactDOM from 'react-dom';
-					import { actions } from "mirrorx";
-					 
-					import './${lessFileName}';
 
-					class ${className} extends  PureComponent {
+	/*********************************/
+	/******** create app.jsx *********/
+	/*********************************/
 
-						constructor(props) {
-					        super(props);
-					        this.state = {  
-					        }
-					    }
-					 
-
-						render() {  
-
-							return ( 
-							)
-						}
-
-					}
+	const appContent = `
+			import React from "react";
+			import 'core-js/es6/map';
+			import 'core-js/es6/set';
+			import logger from "redux-logger";
+			import mirror, { render,Router } from "mirrorx";
+			import Routes from './routes'
+			import 'tinper-bee/assets/tinper-bee.css'
+			import "src/app.less";
 
 
-					export default ${className};
+			const MiddlewareConfig = [];
+
+			if(__MODE__ == "development") MiddlewareConfig.push(logger);
+
+			mirror.defaults({
+			    historyMode: "hash",
+			    middlewares: MiddlewareConfig
+			});
+
+
+
+			
+
+			render(<Router>
+			    <Routes />
+			</Router>, document.querySelector("#app"));
 
 	`;
 
-	 
 
-	fs.writeFile(`${compDir}/${jsFileName}`, beautify(jsxContent, {brace_style: 'collapse-preserve-inline'}), err => {
+	fs.writeFile(`${dir}/${appFileName}`, beautify(appContent, {brace_style: 'collapse-preserve-inline', e4x:'ture'}), err => {
 		if(err) throw err;
-		console.log(`${compDir}/${jsFileName} create success `);
+		console.log(logSymbols.success, `${dir}/${appFileName} create success `.green);
 	})
 
 
-	// create lesss file
-	fs.writeFile(`${compDir}/${lessFileName}`, '', err => {
+
+
+
+
+	/************************************/
+	/******** create index.html *********/
+	/************************************/
+
+	const indexHtmlContent =`
+
+		<!DOCTYPE html>
+		<html lang="zh-TW">
+
+		<head>
+		  <meta charset="UTF-8">
+		  <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
+		  />
+		  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+		  <title>My Title</title>
+		    <% for (var chunk in htmlWebpackPlugin.files.css) { %>
+		    <link href="<%=htmlWebpackPlugin.files.css[chunk] %>" rel="stylesheet">
+		    <% } %>
+		</head>
+
+		
+		<body>
+		  <div id="app">
+		    <div class="u-loading-backdrop">
+		      <div>
+		        <div class="u-loading u-loading-line">
+		          <div></div>
+		          <div></div>
+		          <div></div>
+		          <div></div>
+		          <div></div>
+		        </div>
+		      </div>
+		    </div>
+		  </div>
+		  <% for (var chunk in htmlWebpackPlugin.files.chunks) { %>
+		  <script type="text/javascript" src="<%=htmlWebpackPlugin.files.chunks[chunk].entry %>"></script>
+		  <% } %>
+		</body>
+		</html>
+	
+
+	`;
+
+
+
+
+	fs.writeFile(`${dir}/${indexHtmmFileName}`, html_beautify(indexHtmlContent), err => {
 		if(err) throw err;
-		console.log(`${compDir}/${lessFileName} create success `);
+		console.log(logSymbols.success, `${dir}/${indexHtmmFileName} create success `.green);
 	})
 
+
+
+
+	/***********************************/
+	/******** create component *********/
+	/***********************************/
+
+	this.genComponent(ComponentName, _pageName);
+
+
+
+
+	/********************************/
+	/******** create routes *********/
+	/********************************/
+	const routesContent = `
+
+		import React, { Component } from "react";
+		import { Route } from "mirrorx";
+ 
+		import {Connected${className}} from "../container";
+
+		export default ()=>{
+		    return (
+		        <div className="route-content">
+		            <Route exact path={'/'} component={Connected${className}}/>
+		        </div>
+		    )
+		}
+
+
+	`;
+
+
+
+	fs.writeFile(`${routesDir}/index.jsx`, beautify(routesContent, {brace_style: 'collapse-preserve-inline', e4x:'ture'}), err => {
+		if(err) throw err;
+		console.log(logSymbols.success, `${routesDir}/index.jsx  create success `.green);
+	})
+
+
+ 
+
+ 
+
+
+ 
  
 
 }
@@ -170,11 +291,13 @@ module.exports.moduleItem = (_moduleItemName) => {
 
 
 
-module.exports.component = (_compName) => {
-	const className = _.upperFirst(_.camelCase(_compName));
-	const jsFileName = `${_compName}.jsx`;
-	const lessFileName = `${_compName}.less`;
-	const compDir = `./components/${_compName}`;
+module.exports.genComponent = (_compName, pageName='') => {
+	const className = _.upperFirst(_.camelCase(_compName)); 
+	const jsFileName = `index.jsx`;
+	const lessFileName = `index.less`;
+	const compDir = pageName == '' ? `./components/${className}` : `./${pageName}/components/${className}`;
+
+ 
  
 	// mkdir module component folder
 	if (!fs.existsSync(compDir)){
@@ -182,11 +305,16 @@ module.exports.component = (_compName) => {
 	}
 
 
-	// create jsx file
+	/***********************************/
+	/******** create jsx file **********/
+	/***********************************/
 	let jsxContent = ` 
 					import React, { PureComponent } from "react";
 					import ReactDOM from 'react-dom';
 					import { actions } from "mirrorx";
+
+					import 'bee-complex-grid/build/Grid.css';
+					import 'bee-pagination/build/Pagination.css' 
 					 
 					import './${lessFileName}';
 
@@ -208,22 +336,33 @@ module.exports.component = (_compName) => {
 					}
 
 
-					export default ${className};
+
+					// export default connect( state => state.YOUR_MODEL_NAME, null )(${className});
+
+ 
 
 	`;
 
+
+
 	 
 
-	fs.writeFile(`${compDir}/${jsFileName}`, beautify(jsxContent, {brace_style: 'collapse-preserve-inline'}), err => {
+	fs.writeFile(`${compDir}/${jsFileName}`, beautify(jsxContent, {brace_style: 'collapse-preserve-inline', e4x:'ture'}), err => {
 		if(err) throw err;
-		console.log(`${compDir}/${jsFileName} create success `);
+		console.log(logSymbols.success, `${compDir}/${jsFileName} create success `.green);
 	})
 
 
-	// create lesss file
+
+	/************************************/
+	/******** create less file **********/
+	/************************************/
+
+
+	// create less file
 	fs.writeFile(`${compDir}/${lessFileName}`, '', err => {
 		if(err) throw err;
-		console.log(`${compDir}/${lessFileName} create success `);
+		console.log(logSymbols.success, `${compDir}/${lessFileName} create success `.green);
 	})
 
 
