@@ -12,7 +12,7 @@ module.exports.genPage = (_pageName) => {
 	const className = _.upperFirst(_.camelCase(pageName));
 	const ComponentName = _.upperFirst(_.camelCase(pageName));
 	const modelName = _.camelCase(pageName);
-	const appFileName = `app.jsx`;
+	const appFileName = `app.js`;
 	const jsFileName = `index.jsx`;
 	const lessFileName = `index.less`;
 	const indexHtmmFileName = `index.html`;
@@ -49,15 +49,18 @@ module.exports.genPage = (_pageName) => {
 	/**************************************/
 	/******** create container.js *********/
 	/**************************************/
-	const containerJSContent = `import React from 'react';
-								import mirror, { connect } from 'mirrorx'; 
-								import ${className} from './components/${className}';
-								import model from './model'
+	const containerJSContent = 
+	`
 
-								if (!(model.name in mirror.actions)) { mirror.model(model); };
+	import React from 'react';
+	import mirror, {connect} from 'mirrorx'; 
+	import ${className} from './components/${className}'; 
+	import model from './model'
 
-								export const Connected${className} = connect(state => state.${modelName}, null)(${className});
-								`;
+	mirror.model(model); 
+	export const Connected${className}= connect(state => state.${modelName},null)(${className});
+
+	`;
 
 	 
 
@@ -73,26 +76,36 @@ module.exports.genPage = (_pageName) => {
 	/******** create model.js *********/
 	/**********************************/
  
-	const modelJSContent = `
+	const modelJSContent = ` 
 
-							import { actions } from "mirrorx";
-							import * as api from "./service";
 
-							export default {
-								name: "${modelName}",
-								initialState: { 
-								},
-								reducers: {
-									updateState(state, data) {
-										return {
-											...state,
-											...data
-										};
-									}
-								},
-								effects: { 
-								}
-							};
+
+	import {actions} from "mirrorx"; 
+	import * as api from "./service";
+
+	import { processData } from 'utils';
+
+	export default { 
+	    name: "${modelName}", 
+	    initialState: { 
+	    },
+	    reducers: {
+	        /**
+	         * @param {*} state
+	         * @param {*} data
+	         */
+	        updateState(state, data) { //更新state
+	            return {
+	                ...state,
+	                ...data
+	            };
+	        }
+	    },
+	    effects: { 
+
+	    }
+	};
+						
 
 							`;
 
@@ -108,24 +121,22 @@ module.exports.genPage = (_pageName) => {
 	/******** create service.js *********/
 	/************************************/
 	const serviceJSContent = `
-								import axios from 'axios';
-								import request from "utils/request";
-								import { paramToUrl } from "utils";
-
-								const APIURL = 'XXXXX';
-
-
-								const URL = {
-								    "XXXXX": '/XXXXX'
-								}
 								 
-								 
-								export const getList = (_username) => { 
-									const queryURL = 'XXXXX';
-								    return request(queryURL, {
-								        method: "get"
-								    });
-								}							
+
+		import request from "utils/request"; 
+		const URL = {
+		 "GET_DATA": \`\${GROBAL_HTTP_CTX}/\`
+
+		}
+		/*
+		export const getData = (params) => {
+		 return request(URL.GET_DATA, {
+		 method: "get",
+		 param: params
+		 });
+		}
+		*/
+												
 	`;
 
 
@@ -144,32 +155,32 @@ module.exports.genPage = (_pageName) => {
 	/*********************************/
 
 	const appContent = `
-			import React from "react";
-			import 'core-js/es6/map';
-			import 'core-js/es6/set';
-			import logger from "redux-logger";
-			import mirror, { render,Router } from "mirrorx";
-			import Routes from './routes'
-			import 'tinper-bee/assets/tinper-bee.css'
-			import "src/app.less";
-
-
-			const MiddlewareConfig = [];
-
-			if(__MODE__ == "development") MiddlewareConfig.push(logger);
-
-			mirror.defaults({
-			    historyMode: "hash",
-			    middlewares: MiddlewareConfig
-			});
-
-
-
 			
+		import React from "react";
+		import mirror, { render,Router } from "mirrorx";
+		import logger from "redux-logger";
 
-			render(<Router>
-			    <Routes />
-			</Router>, document.querySelector("#app"));
+		import Routes from './routes'
+
+		import 'core-js/es6/map';
+		import 'core-js/es6/set';
+
+		import 'tinper-bee/assets/tinper-bee.css'
+		import "src/app.less";
+
+
+		const MiddlewareConfig = [];
+
+		if(__MODE__ == "development") MiddlewareConfig.push(logger);
+
+		mirror.defaults({
+		    historyMode: "hash",
+		    middlewares: MiddlewareConfig
+		});
+
+		render(<Router>
+		    <Routes />
+		</Router>, document.querySelector("#app"));
 
 	`;
 
@@ -193,18 +204,18 @@ module.exports.genPage = (_pageName) => {
 		<!DOCTYPE html>
 		<html lang="zh-TW">
 
+		
 		<head>
 		  <meta charset="UTF-8">
 		  <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"
 		  />
 		  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-		  <title>My Title</title>
+		  <title>${className}</title>
 		    <% for (var chunk in htmlWebpackPlugin.files.css) { %>
 		    <link href="<%=htmlWebpackPlugin.files.css[chunk] %>" rel="stylesheet">
 		    <% } %>
 		</head>
 
-		
 		<body>
 		  <div id="app">
 		    <div class="u-loading-backdrop">
@@ -251,29 +262,25 @@ module.exports.genPage = (_pageName) => {
 	/********************************/
 	/******** create routes *********/
 	/********************************/
-	const routesContent = `
+	const routesContent = ` 
 
-		import React, { Component } from "react";
-		import { Route } from "mirrorx";
- 
+		import React from "react";
+		import {Route} from "mirrorx";
 		import {Connected${className}} from "../container";
 
-		export default ()=>{
-		    return (
-		        <div className="route-content">
-		            <Route exact path={'/'} component={Connected${className}}/>
-		        </div>
-		    )
-		}
+		export default () => (
+		    <div className="route-content">
+		        <Route exact path="/" component={Connected${className}}/>
+		    </div>
 
-
+		)
 	`;
 
 
 
-	fs.writeFile(`${routesDir}/index.jsx`, beautify(routesContent, {brace_style: 'collapse-preserve-inline', e4x:'ture'}), err => {
+	fs.writeFile(`${routesDir}/index.js`, beautify(routesContent, {brace_style: 'collapse-preserve-inline', e4x:'ture'}), err => {
 		if(err) throw err;
-		console.log(logSymbols.success, `${routesDir}/index.jsx  create success `.green);
+		console.log(logSymbols.success, `${routesDir}/index.js  create success `.green);
 	})
 
 
@@ -308,36 +315,37 @@ module.exports.genComponent = (_compName, pageName='') => {
 	/***********************************/
 	/******** create jsx file **********/
 	/***********************************/
-	let jsxContent = ` 
-					import React, { PureComponent } from "react";
-					import ReactDOM from 'react-dom';
-					import { actions } from "mirrorx";
+	let jsxContent = `  
 
-					import 'bee-complex-grid/build/Grid.css';
-					import 'bee-pagination/build/Pagination.css' 
-					 
-					import './${lessFileName}';
+	import React, {Component} from 'react';
+	import {actions} from 'mirrorx';
+	import {Button} from 'tinper-bee';
 
-					class ${className} extends  PureComponent {
+	import './${lessFileName}';
 
-						constructor(props) {
-					        super(props);
-					        this.state = {  
-					        }
-					    }
-					 
+	class ${className} extends Component {
+	    constructor(props) {
+	        super(props);
+	        this.state = {
 
-						render() {  
+	        }
+	    }
 
-							return ( 
-							)
-						}
+	    componentDidMount() {
+	        
+	    }
 
-					}
+	    render() {
 
+	        return (
+	            <div >
+	               ${className} Works!
+	            </div>
+	        )
+	    }
+	}
 
-
-					// export default connect( state => state.YOUR_MODEL_NAME, null )(${className});
+	export default ${className};
 
  
 
