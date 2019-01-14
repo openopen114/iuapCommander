@@ -1,6 +1,17 @@
+### Installation
+
+```
+git clone https://github.com/openopen114/iuapCommander
+cd iuapCommander
+npm install
+npm link
+```
+
+
+
 ### Commands
 
-` g <type> <name> `   generate page (g) / component(c)
+` g <type> <name> `   generate page (p) / component(c)
 
 
 
@@ -18,5 +29,6 @@
 
 
 
-![Terminal](https://drive.google.com/uc?export=view&id=1HEsuIkuzy_xHmA01jPYIyUYvGcXf5EvT)
 
+
+![Terminal](https://drive.google.com/uc?export=view&id=120TmrgppNeCjEZALYZ7wiaIpR-piN3Ok)

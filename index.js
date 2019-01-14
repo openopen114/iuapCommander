@@ -15,7 +15,7 @@ const createFile = require('./createFile.js')
 
 program
    .command('g <type> <name>')
-   .description('generate page (g)/component(c) ')
+   .description('generate page (p)/component(c) ')
    .action(function(type, name) {
       
       //generate module item
