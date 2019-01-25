@@ -20,5 +20,8 @@
     "js-prettify": "^1.4.0",
     "lodash": "^4.17.11",
     "log-symbols": "^2.2.0"
+  },
+  "devDependencies": {
+    "prettier": "1.16.1"
   }
 }

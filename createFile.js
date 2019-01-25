@@ -5,6 +5,7 @@ const html_beautify = require('js-beautify-ejsx').html_beautify;
 const _ = require('lodash');
 const colors = require('colors');
 const logSymbols = require('log-symbols');
+const prettier = require("prettier");
 
 module.exports.genPage = (_pageName) => {
  
@@ -64,10 +65,11 @@ module.exports.genPage = (_pageName) => {
 
 	 
 
-	fs.writeFile(`${dir}/container.js`, beautify(containerJSContent, {brace_style: 'collapse-preserve-inline', e4x:'ture'}), err => {
+	fs.writeFile(`${dir}/container.js`, prettier.format(containerJSContent), err => {
 		if(err) throw err;
 		console.log(logSymbols.success, `${dir}/container.js create success `.green);
 	})
+
 
 
 
@@ -110,7 +112,7 @@ module.exports.genPage = (_pageName) => {
 							`;
 
 
-	fs.writeFile(`${dir}/model.js`, beautify(modelJSContent, {brace_style: 'collapse-preserve-inline'}), err => {
+	fs.writeFile(`${dir}/model.js`, prettier.format(modelJSContent), err => {
 		if(err) throw err;
 		console.log(logSymbols.success, `${dir}/model.js create success `.green);
 	})
@@ -141,7 +143,7 @@ module.exports.genPage = (_pageName) => {
 
 
 
-	fs.writeFile(`${dir}/service.js`, beautify(serviceJSContent, {brace_style: 'collapse-preserve-inline'}), err => {
+	fs.writeFile(`${dir}/service.js`, prettier.format(serviceJSContent), err => {
 		if(err) throw err;
 		console.log(logSymbols.success, `${dir}/service.js create success `.green);
 	})
@@ -185,7 +187,7 @@ module.exports.genPage = (_pageName) => {
 	`;
 
 
-	fs.writeFile(`${dir}/${appFileName}`, beautify(appContent, {brace_style: 'collapse-preserve-inline', e4x:'ture'}), err => {
+	fs.writeFile(`${dir}/${appFileName}`, prettier.format(appContent), err => {
 		if(err) throw err;
 		console.log(logSymbols.success, `${dir}/${appFileName} create success `.green);
 	})
@@ -278,7 +280,7 @@ module.exports.genPage = (_pageName) => {
 
 
 
-	fs.writeFile(`${routesDir}/index.js`, beautify(routesContent, {brace_style: 'collapse-preserve-inline', e4x:'ture'}), err => {
+	fs.writeFile(`${routesDir}/index.js`, prettier.format(routesContent), err => {
 		if(err) throw err;
 		console.log(logSymbols.success, `${routesDir}/index.js  create success `.green);
 	})
@@ -355,7 +357,7 @@ module.exports.genComponent = (_compName, pageName='') => {
 
 	 
 
-	fs.writeFile(`${compDir}/${jsFileName}`, beautify(jsxContent, {brace_style: 'collapse-preserve-inline', e4x:'ture'}), err => {
+	fs.writeFile(`${compDir}/${jsFileName}`, prettier.format(jsxContent), err => {
 		if(err) throw err;
 		console.log(logSymbols.success, `${compDir}/${jsFileName} create success `.green);
 	})
